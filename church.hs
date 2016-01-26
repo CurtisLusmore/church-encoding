@@ -1,45 +1,48 @@
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE RankNTypes #-}
 
 -- Boolean
-type Bool' = forall a. a -> a -> a
+newtype Bool' = Bool' { runBool' :: forall a. a -> a -> a }
 
 -- constructors
 true' :: Bool'
-true' = \t f -> t
+true' = Bool' $ \t f -> t
 
 false' :: Bool'
-false' = \t f -> f
+false' = Bool' $ \t f -> f
 
 -- other
 not' :: Bool' -> Bool'
-not' a = a false' true'
+not' a = runBool' a false' true'
 
 and' :: Bool' -> Bool' -> Bool'
-and' a b = a b false'
+and' a b = runBool' a b false'
 
 or' :: Bool' -> Bool' -> Bool'
-or' a b = a true' b
+or' a b = runBool' a true' b
 
 xor' :: Bool' -> Bool' -> Bool'
-xor' a b = a false' b
+xor' a b = runBool' a false' b
 
 if' :: Bool' -> a -> a -> a
-if' c t f = c t f
+if' c t f = runBool' c t f
 
 
 -- Natural numbers
-type Nat' = forall a. (a -> a) -> a -> a
+newtype Nat' = Nat' { runNat' :: forall a. (a -> a) -> a -> a }
 
 -- constructors
 zero' :: Nat'
-zero' = \s z -> z
+zero' = Nat' $ \s z -> z
 
 succ' :: Nat' -> Nat'
-succ' n = \s z -> s (n s z)
+succ' n = Nat' $ \s z -> s (runNat' n s z)
 
 -- other
 isZero' :: Nat' -> Bool'
-isZero' n = n (\n -> false') true'
+isZero' n = runNat' n (\n -> false') true'
+
+isEven' :: Nat' -> Bool'
+isEven' n = runNat' n not' true'
 
 
 type Pair' a b = forall c. (a -> b -> c) -> c
@@ -56,38 +59,55 @@ snd' :: Pair' a b -> b
 snd' p = p (\a b -> b)
 
 
-type List' a = forall b. (a -> b -> b) -> b -> b
+newtype List' a = List' { runList' :: forall b. (a -> b -> b) -> b -> b }
 
 -- constructors
 nil' :: List' a
-nil' = \c n -> n
+nil' = List' $ \c n -> n
 
 cons' :: a -> List' a -> List' a
-cons' h t = \c n -> c h (t c n)
+cons' h t = List' $ \c n -> c h (runList' t c n)
 
 -- other
 null' :: List' a -> Bool'
-null' l = l (\h t -> false') true'
+null' l = runList' l (\h t -> false') true'
 
-fold' :: (a -> a -> a) -> a -> List' a -> a
-fold' f a as = as f a
+fold' :: (a -> b -> b) -> b -> List' a -> b
+fold' f a xs = runList' xs f a
+
+map' :: (a -> b) -> List' a -> List' b
+map' f xs = fold' (\h t -> cons' (f h) t) nil' xs
 
 
-type Maybe' a = forall b. b -> (a -> b) -> b
+newtype Maybe' a = Maybe' { runMaybe' :: forall b. (a -> b) -> b -> b }
 
 -- constructors
 nothing' :: Maybe' a
-nothing' = \n j -> n
+nothing' = Maybe' $ \j n -> n
 
 just' :: a -> Maybe' a
-just' a = \n j -> j a
+just' a = Maybe' $ \j n -> j a
+
+-- other
+isNothing' :: Maybe' a -> Bool'
+isNothing' m = runMaybe' m (\_ -> false') true'
+
+isSomething' :: Maybe' a -> Bool'
+isSomething' m = runMaybe' m (\_ -> true') false'
 
 
-type Either' a b = forall c. (a -> c) -> (b -> c) -> c
+newtype Either' a b = Either' { runEither' :: forall c. (a -> c) -> (b -> c) -> c }
 
 -- constructors
 left' :: a -> Either' a b
-left' a = \l r -> l a
+left' a = Either' $ \l r -> l a
 
 right' :: b -> Either' a b
-right' b = \l r -> r b
+right' b = Either' $ \l r -> r b
+
+-- other
+isLeft' :: Either' a b -> Bool'
+isLeft' e = runEither' e (\_ -> true') (\_ -> false')
+
+isRight' :: Either' a b -> Bool'
+isRight' e = runEither' e (\_ -> false') (\_ -> true')

@@ -50,6 +50,9 @@ add' x y = Nat' $ \s z -> runNat' y s (runNat' x s z)
 mul' :: Nat' -> Nat' -> Nat'
 mul' x y = Nat' $ \s z -> runNat' y (runNat' x s) z
 
+exp' :: Nat' -> Nat' -> Nat'
+exp' b e = Nat' $ runNat' e (runNat' b)
+
 
 type Pair' a b = forall c. (a -> b -> c) -> c
 
@@ -83,6 +86,9 @@ fold' f a xs = runList' xs f a
 
 map' :: (a -> b) -> List' a -> List' b
 map' f xs = fold' (\h t -> cons' (f h) t) nil' xs
+
+filter' :: (a -> Bool') -> List' a -> List' a
+filter' p xs = fold' (\x xs -> if' (p x) (cons' x (filter' p xs)) (filter' p xs)) nil' xs
 
 
 newtype Maybe' a = Maybe' { runMaybe' :: forall b. (a -> b) -> b -> b }

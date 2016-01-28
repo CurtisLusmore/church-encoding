@@ -44,6 +44,12 @@ isZero' n = runNat' n (\n -> false') true'
 isEven' :: Nat' -> Bool'
 isEven' n = runNat' n not' true'
 
+add' :: Nat' -> Nat' -> Nat'
+add' x y = Nat' $ \s z -> runNat' y s (runNat' x s z)
+
+mul' :: Nat' -> Nat' -> Nat'
+mul' x y = Nat' $ \s z -> runNat' y (runNat' x s) z
+
 
 type Pair' a b = forall c. (a -> b -> c) -> c
 
@@ -95,6 +101,9 @@ isNothing' m = runMaybe' m (\_ -> false') true'
 isSomething' :: Maybe' a -> Bool'
 isSomething' m = runMaybe' m (\_ -> true') false'
 
+getSomething' :: Maybe' a -> a
+getSomething' m = runMaybe' m id undefined
+
 
 newtype Either' a b = Either' { runEither' :: forall c. (a -> c) -> (b -> c) -> c }
 
@@ -111,3 +120,9 @@ isLeft' e = runEither' e (\_ -> true') (\_ -> false')
 
 isRight' :: Either' a b -> Bool'
 isRight' e = runEither' e (\_ -> false') (\_ -> true')
+
+getLeft' :: Either' a b -> a
+getLeft' e = runEither' e id undefined
+
+getRight' :: Either' a b -> b
+getRight' e = runEither' e undefined id

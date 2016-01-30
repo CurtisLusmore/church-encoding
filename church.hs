@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 
+
 -- Boolean
 newtype Bool' = Bool' { runBool' :: forall a. a -> a -> a }
 
@@ -54,6 +55,7 @@ exp' :: Nat' -> Nat' -> Nat'
 exp' b e = Nat' $ runNat' e (runNat' b)
 
 
+-- Pair
 type Pair' a b = forall c. (a -> b -> c) -> c
 
 -- constructors
@@ -68,6 +70,7 @@ snd' :: Pair' a b -> b
 snd' p = p (\a b -> b)
 
 
+-- List
 newtype List' a = List' { runList' :: forall b. (a -> b -> b) -> b -> b }
 
 -- constructors
@@ -88,9 +91,10 @@ map' :: (a -> b) -> List' a -> List' b
 map' f xs = fold' (\h t -> cons' (f h) t) nil' xs
 
 filter' :: (a -> Bool') -> List' a -> List' a
-filter' p xs = fold' (\x xs -> if' (p x) (cons' x (filter' p xs)) (filter' p xs)) nil' xs
+filter' p xs = fold' (\x xs -> if' (p x) (cons' x xs) xs) nil' xs
 
 
+-- Maybe
 newtype Maybe' a = Maybe' { runMaybe' :: forall b. (a -> b) -> b -> b }
 
 -- constructors
@@ -111,6 +115,7 @@ getSomething' :: Maybe' a -> a
 getSomething' m = runMaybe' m id undefined
 
 
+-- Either
 newtype Either' a b = Either' { runEither' :: forall c. (a -> c) -> (b -> c) -> c }
 
 -- constructors

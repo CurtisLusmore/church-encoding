@@ -9,10 +9,10 @@ newtype Bool' = Bool' { runBool' :: forall a. a -> a -> a }
 
 -- constructors
 true' :: Bool'
-true' = Bool' $ \t f -> t
+true' = Bool' $ \true false -> true
 
 false' :: Bool'
-false' = Bool' $ \t f -> f
+false' = Bool' $ \true false -> false
 
 -- other
 not' :: Bool' -> Bool'
@@ -36,10 +36,10 @@ newtype Nat' = Nat' { runNat' :: forall a. (a -> a) -> a -> a }
 
 -- constructors
 zero' :: Nat'
-zero' = Nat' $ \s z -> z
+zero' = Nat' $ \succ zero -> zero
 
 succ' :: Nat' -> Nat'
-succ' n = Nat' $ \s z -> s (runNat' n s z)
+succ' n = Nat' $ \succ zero -> succ (runNat' n succ zero)
 
 -- other
 isZero' :: Nat' -> Bool'
@@ -49,10 +49,10 @@ isEven' :: Nat' -> Bool'
 isEven' n = runNat' n not' true'
 
 add' :: Nat' -> Nat' -> Nat'
-add' x y = Nat' $ \s z -> runNat' y s (runNat' x s z)
+add' x y = Nat' $ \succ zero -> runNat' y succ (runNat' x succ zero)
 
 mul' :: Nat' -> Nat' -> Nat'
-mul' x y = Nat' $ \s z -> runNat' y (runNat' x s) z
+mul' x y = Nat' $ \succ zero -> runNat' y (runNat' x succ) zero
 
 exp' :: Nat' -> Nat' -> Nat'
 exp' b e = Nat' $ runNat' e (runNat' b)
@@ -78,10 +78,10 @@ newtype List' a = List' { runList' :: forall b. (a -> b -> b) -> b -> b }
 
 -- constructors
 nil' :: List' a
-nil' = List' $ \c n -> n
+nil' = List' $ \cons nil -> nil
 
 cons' :: a -> List' a -> List' a
-cons' h t = List' $ \c n -> c h (runList' t c n)
+cons' h t = List' $ \cons nil -> cons h (runList' t cons nil)
 
 -- other
 null' :: List' a -> Bool'

@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 
+-- helpers
 id' = \x -> x
 const' = \x _ -> x
 const2' = \x _ _ -> x
@@ -67,10 +68,10 @@ pair' a b = \p -> p a b
 
 -- other
 fst' :: Pair' a b -> a
-fst' p = p (\a b -> a)
+fst' p = p (\fst snd -> fst)
 
 snd' :: Pair' a b -> b
-snd' p = p (\a b -> b)
+snd' p = p (\fst snd -> snd)
 
 
 -- List
@@ -91,7 +92,7 @@ fold' :: (a -> b -> b) -> b -> List' a -> b
 fold' f a xs = runList' xs f a
 
 map' :: (a -> b) -> List' a -> List' b
-map' f xs = fold' (\h t -> cons' (f h) t) nil' xs
+map' f xs = fold' (\x xs -> cons' (f x) xs) nil' xs
 
 filter' :: (a -> Bool') -> List' a -> List' a
 filter' p xs = fold' (\x xs -> if' (p x) (cons' x xs) xs) nil' xs

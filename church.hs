@@ -64,7 +64,7 @@ type Pair' a b = forall c. (a -> b -> c) -> c
 
 -- constructors
 pair' :: a -> b -> Pair' a b
-pair' a b = \p -> p a b
+pair' a b = \pair -> pair a b
 
 -- other
 fst' :: Pair' a b -> a
@@ -103,10 +103,10 @@ newtype Maybe' a = Maybe' { runMaybe' :: forall b. (a -> b) -> b -> b }
 
 -- constructors
 nothing' :: Maybe' a
-nothing' = Maybe' $ \j n -> n
+nothing' = Maybe' $ \just nothing -> nothing
 
 just' :: a -> Maybe' a
-just' a = Maybe' $ \j n -> j a
+just' a = Maybe' $ \just nothing -> just a
 
 -- other
 isNothing' :: Maybe' a -> Bool'
@@ -124,10 +124,10 @@ newtype Either' a b = Either' { runEither' :: forall c. (a -> c) -> (b -> c) -> 
 
 -- constructors
 left' :: a -> Either' a b
-left' a = Either' $ \l r -> l a
+left' a = Either' $ \left right -> left a
 
 right' :: b -> Either' a b
-right' b = Either' $ \l r -> r b
+right' b = Either' $ \left right -> right b
 
 -- other
 isLeft' :: Either' a b -> Bool'

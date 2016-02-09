@@ -1,9 +1,18 @@
 {-# LANGUAGE RankNTypes #-}
 
 -- helpers
+id' :: a -> a
 id' = \x -> x
+
+const' :: a -> b -> a
 const' = \x _ -> x
+
+const2' = a -> b -> c -> a
 const2' = \x _ _ -> x
+
+undefined' :: a
+undefined' = undefined'
+
 
 -- Boolean
 newtype Bool' = Bool' { runBool' :: forall a. a -> a -> a }
@@ -68,10 +77,10 @@ pair' a b = \pair -> pair a b
 
 -- other
 fst' :: Pair' a b -> a
-fst' p = p (\fst snd -> fst)
+fst' p = p $ \fst snd -> fst
 
 snd' :: Pair' a b -> b
-snd' p = p (\fst snd -> snd)
+snd' p = p $ \fst snd -> snd
 
 
 -- List
@@ -82,7 +91,7 @@ nil' :: List' a
 nil' = List' $ \cons nil -> nil
 
 cons' :: a -> List' a -> List' a
-cons' h t = List' $ \cons nil -> cons h (runList' t cons nil)
+cons' x xs = List' $ \cons nil -> cons x (runList' xs cons nil)
 
 -- other
 null' :: List' a -> Bool'
@@ -116,7 +125,7 @@ isSomething' :: Maybe' a -> Bool'
 isSomething' m = runMaybe' m (const' true') false'
 
 getSomething' :: Maybe' a -> a
-getSomething' m = runMaybe' m id' undefined
+getSomething' m = runMaybe' m id' undefined'
 
 
 -- Either
@@ -137,7 +146,7 @@ isRight' :: Either' a b -> Bool'
 isRight' e = runEither' e (const' false') (const' true')
 
 getLeft' :: Either' a b -> a
-getLeft' e = runEither' e id' undefined
+getLeft' e = runEither' e id' undefined'
 
 getRight' :: Either' a b -> b
-getRight' e = runEither' e undefined id'
+getRight' e = runEither' e undefined' id'

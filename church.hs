@@ -7,7 +7,7 @@ id' = \x -> x
 const' :: a -> b -> a
 const' = \x _ -> x
 
-const2' = a -> b -> c -> a
+const2' :: a -> b -> c -> a
 const2' = \x _ _ -> x
 
 undefined' :: a
